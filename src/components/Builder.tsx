@@ -20,8 +20,6 @@ import { getFromLS } from "../utils";
 const initialNodes = getFromLS("nodes") || [];
 const initialEdges = getFromLS("edges") || [];
 
-console.log(initialNodes, initialEdges);
-
 const Builder = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -38,12 +36,15 @@ const Builder = () => {
 
   const onConnect = useCallback((params: Connection) => {
     // one source can have one target
-    const sourceExists = edges.findIndex(
-      (edge) => edge.source === params.source
-    );
-    if (sourceExists > -1) return alert("Cannot connect two nodes");
-    return setEdges((eds) =>
-      addEdge(
+    return setEdges((eds) => {
+      const sourceExists = eds.findIndex(
+        (edge) => edge.source === params.source
+      );
+      if (sourceExists > -1) {
+        alert("Cannot connect two nodes");
+        return eds;
+      }
+      return addEdge(
         {
           id: nanoid(),
           ...params,
@@ -52,8 +53,8 @@ const Builder = () => {
           },
         },
         eds
-      )
-    );
+      );
+    });
   }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -81,7 +82,7 @@ const Builder = () => {
         id: nanoid(),
         type,
         position,
-        data: { label: `${type} node` },
+        data: { label: `New Node` },
       };
 
       setNodes((nds) => nds.concat(newNode));
