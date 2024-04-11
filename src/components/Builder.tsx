@@ -9,47 +9,26 @@ import ReactFlow, {
   ReactFlowInstance,
   useEdgesState,
   useNodesState,
+  useOnSelectionChange,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import CustomNode from "./CustomNode";
 import { nanoid } from "nanoid";
+import { useStore } from "../store";
+import { getFromLS } from "../utils";
 
-const initialNodes = [
-  {
-    id: "1",
-    data: { label: "Hello" },
-    position: { x: 0, y: 0 },
-    type: "custom",
-  },
-  {
-    id: "2",
-    data: { label: "World" },
-    position: { x: 100, y: 100 },
-  },
-  {
-    id: "3",
-    data: { label: "World 1" },
-    position: { x: 100, y: 200 },
-  },
-];
+const initialNodes = getFromLS("nodes") || [];
+const initialEdges = getFromLS("edges") || [];
 
-const initialEdges = [
-  {
-    id: "1-2",
-    source: "1",
-    target: "2",
-    type: "step",
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-    },
-  },
-];
+console.log(initialNodes, initialEdges);
 
 const Builder = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+
+  const setSelectedNode = useStore((state) => state.setSelectedNode);
 
   const CustomNode_ = useMemo(() => CustomNode, []);
 
@@ -94,9 +73,6 @@ const Builder = () => {
 
       if (reactFlowInstance === null) return;
 
-      // reactFlowInstance.project was renamed to reactFlowInstance.screenToFlowPosition
-      // and you don't need to subtract the reactFlowBounds.left/top anymore
-      // details: https://reactflow.dev/whats-new/2023-11-10
       const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX,
         y: event.clientY,
@@ -113,8 +89,14 @@ const Builder = () => {
     [reactFlowInstance]
   );
 
+  useOnSelectionChange({
+    onChange: ({ nodes }) => {
+      setSelectedNode(nodes[0] || null);
+    },
+  });
+
   return (
-    <div className="w-full h-full bg-blue-50">
+    <div className="w-full h-full bg-white">
       <ReactFlow
         nodes={nodes}
         onNodesChange={onNodesChange}

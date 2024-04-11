@@ -1,10 +1,21 @@
-import React from "react";
+import { useReactFlow } from "reactflow";
+import { setToLS } from "../utils";
 
 const Header = () => {
+  const flow = useReactFlow();
+
+  const handleSave = () => {
+    setToLS("edges", flow.getEdges());
+    setToLS("nodes", flow.getNodes());
+  };
+
   return (
-    <div className="w-full  bg-gray-100 ">
-      <div className=" container bg-gray-100 h-[8vh] flex items-center justify-end">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-sm ">
+    <div className="w-full  bg-[#f3f3f3] ">
+      <div className=" mx-4  h-[6vh] flex items-center justify-end">
+        <button
+          className="border-blue-500 border text-gray-700 bg-white rounded-md px-4 py-2 w-40 "
+          onClick={handleSave}
+        >
           Save Changes
         </button>
       </div>
